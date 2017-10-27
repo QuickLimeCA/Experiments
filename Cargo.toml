@@ -1,0 +1,6 @@
+[package]
+name = "x509parse"
+version = "0.1.0"
+authors = ["Dan Murphy <danwright91@gmail.com>"]
+
+[dependencies]

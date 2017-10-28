@@ -1,6 +1,9 @@
+extern crate chrono;
 extern crate clap;
 extern crate openssl;
+use chrono::prelude::*;
 use clap::{Arg, App};
+use openssl::asn1::Asn1TimeRef;
 use openssl::error::ErrorStack;
 use openssl::nid;
 use openssl::string::OpensslString;
@@ -43,6 +46,23 @@ fn main() {
             }
         }
     }
+
+    println!("------------Validity Dates------------");
+    let validity_dates = get_validity_dates(&cert);
+    println!("Not before: {}", validity_dates.0);
+    println!("Not after: {}", validity_dates.1);
+
+    let not_before = convert_Asn1TimeRef_to_DateTimeUTC(validity_dates.0);
+    match not_before {
+        Err(e) => println!("Error parsing not_before date: {}", e),
+        Ok(not_before) => println!("Not before: {:?}", not_before)
+    }
+
+    let not_after = convert_Asn1TimeRef_to_DateTimeUTC(validity_dates.1);
+    match not_after {
+        Err(e) => println!("Error parsing not_after date: {}", e),
+        Ok(not_after) => println!("Not after: {:?}", not_after)
+    }
 }
 
 fn get_cert_bytes(input_file_path: &str) -> Result<Vec<u8>, io::Error> {
@@ -68,4 +88,25 @@ fn get_subject_alt_names(cert: & X509) -> Option<Vec<String>> {
             .filter_map(Option::Some)
             .collect())
     }
+}
+
+fn get_validity_dates<'a>(cert: &'a X509) -> (&'a Asn1TimeRef, &'a Asn1TimeRef) {
+    let not_before = cert.not_before();
+    let not_after = cert.not_after();
+    (not_before, not_after)
+}
+
+fn convert_Asn1TimeRef_to_DateTimeUTC(input: & Asn1TimeRef) -> Result<chrono::DateTime<Utc>, chrono::ParseError> {
+    use std::fmt::Write;
+
+    let mut stringified = String::new();
+    let result = write!(&mut stringified, "{}", input);
+    if result.is_err() {
+        panic!("Error writing Asn1TimeRef to string");
+    }
+    stringified = stringified.replace("GMT", "+00:00");
+
+    let output = DateTime::parse_from_str(& stringified, "%b %d %H:%M:%S %Y %z")?;
+
+    Ok(output.with_timezone(&Utc))
 }

@@ -96,6 +96,7 @@ fn get_validity_dates<'a>(cert: &'a X509) -> (&'a Asn1TimeRef, &'a Asn1TimeRef) 
     (not_before, not_after)
 }
 
+#[allow(non_snake_case)] //This func converts types, so type names are used in func name
 fn convert_Asn1TimeRef_to_DateTimeUTC(input: & Asn1TimeRef) -> Result<chrono::DateTime<Utc>, chrono::ParseError> {
     use std::fmt::Write;
 

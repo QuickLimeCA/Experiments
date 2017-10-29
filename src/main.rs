@@ -1,6 +1,8 @@
 extern crate chrono;
 extern crate clap;
 extern crate openssl;
+extern crate x509parselib;
+
 use chrono::prelude::*;
 use clap::{Arg, App};
 use openssl::asn1::Asn1TimeRef;
@@ -8,10 +10,6 @@ use openssl::error::ErrorStack;
 use openssl::nid;
 use openssl::string::OpensslString;
 use openssl::x509::X509;
-
-use std::io;
-use std::io::Read;
-use std::fs::File;
 
 fn main() {
     let args = App::new("X.509 Parse")
@@ -24,7 +22,7 @@ fn main() {
         .get_matches();
 
     let input_file_path = args.value_of("InputFile").unwrap();
-    let cert_bytes = get_cert_bytes(input_file_path).unwrap();
+    let cert_bytes = x509parselib::get_cert_bytes(input_file_path).unwrap();
     let cert = X509::from_pem(&cert_bytes).unwrap();
     
     println!("------------COMMON NAMES------------");
@@ -76,14 +74,6 @@ fn main() {
             }
         }
     }
-}
-
-fn get_cert_bytes(input_file_path: &str) -> Result<Vec<u8>, io::Error> {
-    let mut input_data = Vec::new();
-
-    File::open(input_file_path)?.read_to_end(&mut input_data)?;
-
-    Ok(input_data)
 }
 
 fn get_subject_name(cert: &X509) -> Vec<Result<OpensslString, ErrorStack>> {

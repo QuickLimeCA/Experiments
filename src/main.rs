@@ -6,9 +6,6 @@ extern crate x509parselib;
 use chrono::prelude::*;
 use clap::{Arg, App};
 use openssl::asn1::Asn1TimeRef;
-use openssl::error::ErrorStack;
-use openssl::nid;
-use openssl::string::OpensslString;
 use openssl::x509::X509;
 
 fn main() {
@@ -26,7 +23,7 @@ fn main() {
     let cert = X509::from_pem(&cert_bytes).unwrap();
     
     println!("------------COMMON NAMES------------");
-    let cert_common_names = get_subject_name(&cert);
+    let cert_common_names = x509parselib::get_subject_name(&cert);
     for cn in cert_common_names {
         match cn {
             Ok(cn) => println!("{:?}", cn),
@@ -76,11 +73,7 @@ fn main() {
     }
 }
 
-fn get_subject_name(cert: &X509) -> Vec<Result<OpensslString, ErrorStack>> {
-    let entries = cert.subject_name();
-    let common_name_entries = entries.entries_by_nid(nid::COMMONNAME);
-    common_name_entries.map(|x| (*x).data().as_utf8()).collect()
-}
+
 
 fn get_subject_alt_names(cert: & X509) -> Option<Vec<String>> {
     let entries = cert.subject_alt_names();

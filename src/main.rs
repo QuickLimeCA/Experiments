@@ -63,6 +63,19 @@ fn main() {
         Err(e) => println!("Error parsing not_after date: {}", e),
         Ok(not_after) => println!("Not after: {:?}", not_after)
     }
+
+    if let Ok(not_before) = not_before {
+        if let Ok(not_after) = not_after {
+            let now = chrono::Utc::now();
+            if not_before <= now && now <= not_after {
+                println!("Certificate is between validity dates");
+            } else if now < not_before {
+                println!("Certificate not yet valid");
+            } else {
+                println!("Certificate expired");
+            }
+        }
+    }
 }
 
 fn get_cert_bytes(input_file_path: &str) -> Result<Vec<u8>, io::Error> {

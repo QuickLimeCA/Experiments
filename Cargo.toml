@@ -1,17 +1,3 @@
-[package]
-name = "x509parse"
-version = "0.1.0"
-authors = ["Dan Murphy <danwright91@gmail.com>"]
+[workspace]
 
-[lib]
-name = "x509parselib"
-path = "src/lib.rs"
-
-[[bin]]
-name = "x509parse"
-path = "src/main.rs"
-
-[dependencies]
-chrono = "0.4"
-clap = "2"
-openssl = "0.9.20"
+members = ["helperlib", "x509parse"]

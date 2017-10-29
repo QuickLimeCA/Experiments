@@ -1,7 +1,7 @@
 extern crate chrono;
 extern crate clap;
 extern crate openssl;
-extern crate x509parselib;
+extern crate helperlib;
 
 use chrono::Utc;
 use clap::{Arg, App};
@@ -18,11 +18,11 @@ fn main() {
         .get_matches();
 
     let input_file_path = args.value_of("InputFile").unwrap();
-    let cert_bytes = x509parselib::get_cert_bytes(input_file_path).unwrap();
+    let cert_bytes = helperlib::get_cert_bytes(input_file_path).unwrap();
     let cert = X509::from_pem(&cert_bytes).unwrap();
     
     println!("------------COMMON NAMES------------");
-    let cert_common_names = x509parselib::get_subject_name(&cert);
+    let cert_common_names = helperlib::get_subject_name(&cert);
     for cn in cert_common_names {
         match cn {
             Ok(cn) => println!("{:?}", cn),
@@ -31,7 +31,7 @@ fn main() {
     }
 
     println!("------------SUBJECT ALT NAMES------------");
-    let cert_subject_alt_names = x509parselib::get_subject_alt_names(&cert);
+    let cert_subject_alt_names = helperlib::get_subject_alt_names(&cert);
     match cert_subject_alt_names {
         None => println!("{:?}", "No SANs listed in certificate".to_string()),
         Some(sans) => {
@@ -42,17 +42,17 @@ fn main() {
     }
 
     println!("------------Validity Dates------------");
-    let validity_dates = x509parselib::get_validity_dates(&cert);
+    let validity_dates = helperlib::get_validity_dates(&cert);
     println!("Not before: {}", validity_dates.0);
     println!("Not after: {}", validity_dates.1);
 
-    let not_before = x509parselib::convert_Asn1TimeRef_to_DateTimeUTC(validity_dates.0);
+    let not_before = helperlib::convert_Asn1TimeRef_to_DateTimeUTC(validity_dates.0);
     match not_before {
         Err(e) => println!("Error parsing not_before date: {}", e),
         Ok(not_before) => println!("Not before: {:?}", not_before)
     }
 
-    let not_after = x509parselib::convert_Asn1TimeRef_to_DateTimeUTC(validity_dates.1);
+    let not_after = helperlib::convert_Asn1TimeRef_to_DateTimeUTC(validity_dates.1);
     match not_after {
         Err(e) => println!("Error parsing not_after date: {}", e),
         Ok(not_after) => println!("Not after: {:?}", not_after)

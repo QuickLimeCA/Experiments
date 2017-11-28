@@ -1,0 +1,8 @@
+[package]
+name = "schema"
+version = "0.1.0"
+authors = ["Dan Murphy <danhatesnumbers@gmail.com"]
+
+[dependencies]
+clap = "2"
+valico = "1.0.1"

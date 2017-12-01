@@ -45,9 +45,14 @@ fn main() {
     let state = schema_compiled.validate(&data.as_object().unwrap().get("data").unwrap());
 
     println!("Is JSON Valid? {:?}", state.is_valid());
-    if(state.is_valid() == false) {
+    if state.is_valid() == false {
         for err in state.errors {
-            println!("{:?} {:?} {:?}", err.get_path(), err.get_title(), err.get_detail());
+            println!("");
+            if err.get_detail().is_some() == true {
+                println!("Where: {}\nWhat: {}\nWhy: {}", err.get_path(), err.get_title(), err.get_detail().unwrap());
+            } else {
+                println!("Where: {}\nWhat: {}", err.get_path(), err.get_title());
+            }
         }
     }
 }

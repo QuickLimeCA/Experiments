@@ -4,11 +4,10 @@ extern crate serde_json;
 extern crate valico;
 
 use clap::{Arg, App};
-use serde_json::{Value, from_str};
+use serde_json::{Value, from_reader};
 use valico::json_schema;
 
 use std::io;
-use std::io::Read;
 use std::fs::File;
 use std::path::Path;
 
@@ -27,14 +26,25 @@ fn main() {
             .required(true))
         .get_matches();
 
-    let input_json_path = Path::new(args.value_of("InputJson").unwrap());
-    let input_json_data = read_file(&input_json_path).unwrap();
-
     let input_schema_path = Path::new(args.value_of("InputSchema").unwrap());
-    let input_schema_data = read_file(&input_schema_path).unwrap();
+    let input_json_path = Path::new(args.value_of("InputJson").unwrap());
 
-    let schema: Value = from_str(&input_schema_data).unwrap();
-    let data: Value = from_str(&input_json_data).unwrap();
+    let schema: Value = match File::open(input_schema_path) {
+        Ok(file) => match from_reader(file) {
+            Ok(value) => value,
+            Err(err) => panic!("Failed to deserialise schema: {}", err)
+        },
+        Err(err) => panic!("Failed to open schema for reading: {}", err)
+    };
+
+    let data: Value = match File::open(input_json_path) {
+        Ok(file) => match from_reader(file) {
+            Ok(value) => value,
+            Err(err) => panic!("Failed to deserialise data: {}", err)
+        },
+        Err(err) => panic!("Failed to open data for reading: {}", err)
+    };
+
     let mut scope = json_schema::Scope::new();
 
     let schema_compiled = match scope.compile_and_return(schema.clone(), false) {
@@ -55,10 +65,4 @@ fn main() {
             }
         }
     }
-}
-
-fn read_file(input_file_path: &Path) -> Result<String, io::Error> {
-    let mut contents = String::new();
-    File::open(input_file_path)?.read_to_string(&mut contents)?;
-    Ok(contents)
 }

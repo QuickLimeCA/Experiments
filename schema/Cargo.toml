@@ -5,6 +5,6 @@ authors = ["Dan Murphy <danhatesnumbers@gmail.com"]
 
 [dependencies]
 clap = "2"
-valico = "1.0.1"
-serde = "0.8"
-serde_json = "0.8"
+valico = { git = "https://github.com/korczis/valico", branch = "serde-1.0" }
+serde = "1"
+serde_json = "1"

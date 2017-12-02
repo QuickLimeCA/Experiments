@@ -42,7 +42,7 @@ fn main() {
         Err(err) => panic!("Error in schema {:?}", err)
     };
 
-    let state = schema_compiled.validate(&data.as_object().unwrap().get("data").unwrap());
+    let state = schema_compiled.validate(&data["data"]);
 
     println!("Is JSON Valid? {:?}", state.is_valid());
     if state.is_valid() == false {

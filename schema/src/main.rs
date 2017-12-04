@@ -7,7 +7,6 @@ use clap::{Arg, App};
 use serde_json::{Value, from_reader};
 use valico::json_schema;
 
-use std::io;
 use std::fs::File;
 use std::path::Path;
 
@@ -47,7 +46,7 @@ fn main() {
 
     let mut scope = json_schema::Scope::new();
 
-    let schema_compiled = match scope.compile_and_return(schema.clone(), false) {
+    let schema_compiled = match scope.compile_and_return(schema, false) {
         Ok(schema) => schema,
         Err(err) => panic!("Error in schema {:?}", err)
     };

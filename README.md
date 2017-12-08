@@ -1,6 +1,8 @@
+# Experiments
+
 This repository contains code experiments for exploring ideas for the QuickLime project.
 
-# x509parse
+## x509parse
 
 This experiment is to explore the openssl crate and gain experience with extracting details from X.509 certificates [RFC5280](https://datatracker.ietf.org/doc/rfc5280/).
 
@@ -181,3 +183,23 @@ Copy the first certificate in the output, including the `-----BEGIN CERTIFICATE-
 Build the crate using `cargo build --release`
 
 Then, once you've built the crate, run `./target/release/x509parse --file testcert.pem`
+
+## schema
+
+This experiment is to try out the Valico library for [JSON Schema](http://json-schema.org/) validation. I have used a fork of [Valico](https://github.com/korczis/valico/tree/serde-1.0) by Github user [korczis](https://github.com/korczis) in order to gain support for Serde 1.0.
+
+The data folder contains two files; a simple JSON schema (draft-07) and a self-describing JSON file, which is described in a blog post from [Snowplow Analytics](https://snowplowanalytics.com/blog/2014/05/15/introducing-self-describing-jsons/).
+
+Build the crate using `cargo build --release`
+
+Then, once you've built the crate, run `./target/release/schema --json schema/data/example_data.json --schema schema/data/example.json`. You should see `Is JSON Valid? true`.
+
+If you edit the JSON file and remove a property or change the type of testProp from a string to a number, you will see corresponding validation errors in the console.
+
+## structver
+
+This experiment is to figure out an elegant way of handling breaking changes to the schema of a JSON object. This felt like a fundamental problem that would surface when building an Event Sourcing architecture, because the consuming applications need to be able to handle every version of each event in the system in order to avoid data loss.
+
+The solution to this problem is to use Serde's untagged enum deserialisation functionality to deserialise JSON to a variant of an enum, where each variant is a struct. The match expressions include a catch-all to handle unknown versions, but this could be removed if a broken build is the desired behaviour on updating the crate containing the deserialisation target structs.
+
+Build the crate using `cargo build --release`, then run `./target/release/structver`.
